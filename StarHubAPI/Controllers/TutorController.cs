@@ -25,14 +25,14 @@ namespace StarHubAPI.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var tutors = _unitOfWork.Tutor.GetAll(includeProperty:"MainSubjects");
+            var tutors = _unitOfWork.Tutor.GetAll(includeProperty:"MainSubjects,FormOfWorks");
             return Ok(tutors);
         }
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            var tutor = _unitOfWork.Tutor.GetFirstOrDefault(t => t.Id == id, includeProperties: "MainSubjects");
+            var tutor = _unitOfWork.Tutor.GetFirstOrDefault(t => t.Id == id, includeProperties: "MainSubjects,FormOfWorks");
             if (tutor == null)
             {
                 return NotFound();
@@ -94,7 +94,7 @@ namespace StarHubAPI.Controllers
         }
 
 
-        [HttpPut("AddAndUpdateMainSubjectsForTutor")]
+        [HttpPut("AddOrUpdateMainSubjectsForTutor")]
         public IActionResult AddAndUpdateMainSubjectsForTutor(int tutorId, [FromBody] List<int> ListofMainSubjectId)
         {
             // Validate input
@@ -104,7 +104,7 @@ namespace StarHubAPI.Controllers
             }
 
             // Retrieve the Tutor entity from the database
-            var tutor = _unitOfWork.Tutor.GetFirstOrDefault(t => t.Id == tutorId, includeProperties: "MainSubjects");
+            var tutor = _unitOfWork.Tutor.GetFirstOrDefault(t => t.Id == tutorId, includeProperties: "MainSubjects,FormOfWorks");
             if (tutor == null)
             {
                 return NotFound($"Tutor with ID {tutorId} not found.");
@@ -127,6 +127,46 @@ namespace StarHubAPI.Controllers
 
             // Add the new MainSubjects to the Tutor's MainSubjects list
             tutor.MainSubjects.AddRange(mainSubject);
+
+            // Save the changes to the database
+            _unitOfWork.Save();
+
+            return Ok(tutor); // Return the updated Tutor object
+        }
+
+        [HttpPut("AddOrUpdateFormOfWorkForTutor")]
+        public IActionResult AddAndUpdateFormOfWorkForTutor(int tutorId, [FromBody] List<int> ListofFormOfWorkId)
+        {
+            // Validate input
+            if (tutorId <= 0 || ListofFormOfWorkId == null)
+            {
+                return BadRequest("Invalid Tutor ID or Form Of Work ID.");
+            }
+
+            // Retrieve the Tutor entity from the database
+            var tutor = _unitOfWork.Tutor.GetFirstOrDefault(t => t.Id == tutorId, includeProperties: "MainSubjects,FormOfWorks");
+            if (tutor == null)
+            {
+                return NotFound($"Tutor with ID {tutorId} not found.");
+            }
+
+            // Retrieve the FormOfWork entity from the database
+            var formOfWork = new List<FormOfWork>();
+            foreach (var formOfWorkId in ListofFormOfWorkId)
+            {
+                formOfWork.Add(_unitOfWork.FormOfWork.GetFirstOrDefault(f => f.Id == formOfWorkId));
+            }
+
+            if (formOfWork == null)
+            {
+                return NotFound($"Form Of Work not found.");
+            }
+
+            // Clear the existing FormOfWork list
+            tutor.FormOfWorks.Clear();
+
+            // Add the new FormOfWork to the Tutor's FormOfWork list
+            tutor.FormOfWorks.AddRange(formOfWork);
 
             // Save the changes to the database
             _unitOfWork.Save();

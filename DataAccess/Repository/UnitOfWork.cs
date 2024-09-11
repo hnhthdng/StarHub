@@ -15,10 +15,11 @@ namespace DataAccess.Repository
             _db = db;
             Tutor = new TutorRepository(_db);
             MainSubject = new MainSubjectRepository(_db);
-
+            FormOfWork = new FormOfWorkRepository(_db);
         }
         public ITutorRepository Tutor { get; private set; }
         public IMainSubjectRepository MainSubject { get; private set; }
+        public IFormOfWorkRepository FormOfWork { get; private set; }
 
         public void Dispose()
         {

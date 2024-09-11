@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DataObject.DTO.FormOfWork;
 using DataObject.DTO.MainSubject;
 using DataObject.DTO.Tutor;
 using System;
@@ -18,6 +19,9 @@ namespace DataObject.Mapping
 
             //Define the mapping between MainSubject and MainSubjectDTO
             CreateMap<MainSubject, MainSubjectDTO>().ReverseMap();
+
+            //Define the mapping between FormOfWork and FormOfWorkDTO   
+            CreateMap<FormOfWork, FormOfWorkDTO>().ReverseMap();
         }
     }
 }
