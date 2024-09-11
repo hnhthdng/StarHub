@@ -3,21 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace DataObject
+namespace DataObject.DTO.TeachingTopic
 {
-    public class TeachingTopic
+    public class TeachingTopicDTO
     {
-        [Key]
-        public int Id { get; set; }
-
         [Required]
         [MaxLength(100)]
         public string Topic { get; set; }
-        [JsonIgnore]
-
-        public virtual List<Tutor> Tutors { get; set; }
     }
 }
