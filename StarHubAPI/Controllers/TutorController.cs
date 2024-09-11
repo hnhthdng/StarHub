@@ -2,6 +2,7 @@
 using DataAccess.Repository.IRepository;
 using DataObject;
 using DataObject.DTO.Tutor;
+using DataObject.DTO.TutorMainSubject;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,14 +25,14 @@ namespace StarHubAPI.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var tutors = _unitOfWork.Tutor.GetAll();
+            var tutors = _unitOfWork.Tutor.GetAll(includeProperty:"MainSubjects");
             return Ok(tutors);
         }
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            var tutor = _unitOfWork.Tutor.Get(id);
+            var tutor = _unitOfWork.Tutor.GetFirstOrDefault(t => t.Id == id, includeProperties: "MainSubjects");
             if (tutor == null)
             {
                 return NotFound();
@@ -75,7 +76,7 @@ namespace StarHubAPI.Controllers
             _unitOfWork.Tutor.Update(existingTutor);
             _unitOfWork.Save();
 
-            return CreatedAtAction("Get", new { id = id }, existingTutor); ; // Return 204 No Content on successful update
+            return CreatedAtAction("Get", new { id = id }, existingTutor);
         }
 
 
@@ -90,6 +91,47 @@ namespace StarHubAPI.Controllers
             _unitOfWork.Tutor.Remove(tutor);
             _unitOfWork.Save();
             return NoContent();
+        }
+
+
+        [HttpPut("AddAndUpdateMainSubjectsForTutor")]
+        public IActionResult AddAndUpdateMainSubjectsForTutor(int tutorId, [FromBody] List<int> ListofMainSubjectId)
+        {
+            // Validate input
+            if (tutorId <= 0 || ListofMainSubjectId == null)
+            {
+                return BadRequest("Invalid Tutor ID or Main Subject ID.");
+            }
+
+            // Retrieve the Tutor entity from the database
+            var tutor = _unitOfWork.Tutor.GetFirstOrDefault(t => t.Id == tutorId, includeProperties: "MainSubjects");
+            if (tutor == null)
+            {
+                return NotFound($"Tutor with ID {tutorId} not found.");
+            }
+
+            // Retrieve the MainSubject entity from the database
+            var mainSubject = new List<MainSubject>();
+            foreach (var mainSubjectId in ListofMainSubjectId)
+            {
+                mainSubject.Add(_unitOfWork.MainSubject.GetFirstOrDefault(ms => ms.Id == mainSubjectId));
+            }
+
+            if (mainSubject == null)
+            {
+                return NotFound($"Main Subject not found.");
+            }
+
+            // Clear the existing MainSubjects list
+            tutor.MainSubjects.Clear();
+
+            // Add the new MainSubjects to the Tutor's MainSubjects list
+            tutor.MainSubjects.AddRange(mainSubject);
+
+            // Save the changes to the database
+            _unitOfWork.Save();
+
+            return Ok(tutor); // Return the updated Tutor object
         }
     }
 }

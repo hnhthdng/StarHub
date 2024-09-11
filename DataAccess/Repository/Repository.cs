@@ -36,16 +36,16 @@ namespace DataAccess.Repository
 
         public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null,
                              Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null
-                            , string? includeProperty = null)
+                            , string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;
             if (filter != null)
             {
                 query = query.Where(filter);
             }
-            if (includeProperty != null)
+            if (includeProperties != null)
             {
-                foreach (var includeProp in includeProperty.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
                     query = query.Include(includeProp);
                 }

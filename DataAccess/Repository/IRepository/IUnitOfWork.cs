@@ -9,6 +9,7 @@ namespace DataAccess.Repository.IRepository
     public interface IUnitOfWork : IDisposable
     {
         ITutorRepository Tutor { get; }
+        IMainSubjectRepository MainSubject { get; }
         void Save();
     }
 }

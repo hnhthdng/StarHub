@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DataObject.DTO.MainSubject;
 using DataObject.DTO.Tutor;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,9 @@ namespace DataObject.Mapping
         {
             // Define the mapping between Tutor and TutorBasicInfoDTO
             CreateMap<Tutor, TutorBasicInfoDTO>().ReverseMap();
+
+            //Define the mapping between MainSubject and MainSubjectDTO
+            CreateMap<MainSubject, MainSubjectDTO>().ReverseMap();
         }
     }
 }
