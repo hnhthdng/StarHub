@@ -5,52 +5,32 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataObject
+namespace DataObject.DTO.Tutor
 {
-    public class Tutor
+    public class TutorBasicInfoDTO
     {
-        [Key]
-        public int Id { get; set; }
-
         [Required]
         [MaxLength(100)]
         public string FullName { get; set; }
-
         [Required]
         public int TuitionFee { get; set; }
-
-        public virtual List<MainSubject> MainSubjects { get; set; }
-
         [MaxLength(200)]
         public string LivingAt { get; set; }
-
-        public virtual List<FormOfWork> FormOfWorks { get; set; }
-
         [Required]
         public int YearOfBirth { get; set; }
-
         [Required]
-        public int Gender { get; set; } // 1: Nam, 2: Nu
-
+        public int Gender { get; set; }
         [MaxLength(100)]
         public string Hometown { get; set; }
-
         [MaxLength(200)]
         public string Education { get; set; }
-
         [MaxLength(500)]
         public string Experience { get; set; }
-
         [MaxLength(500)]
         public string Achievement { get; set; }
-
-        public virtual List<TeachingTopic> TeachingTopics { get; set; }
-
         [MaxLength(200)]
-        public string CurrentStatus { get; set; } // Ex: Hiện đang là sinh viên
-
+        public string CurrentStatus { get; set; }
         [MaxLength(200)]
         public string TeachingArea { get; set; }
     }
-
 }

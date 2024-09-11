@@ -16,6 +16,6 @@ namespace DataObject
         [MaxLength(50)]
         public string Form { get; set; } // off, onl
 
-        public List<Tutor> Tutors { get; set; }
+        public virtual List<Tutor> Tutors { get; set; }
     }
 }

@@ -16,6 +16,6 @@ namespace DataObject
         [MaxLength(100)]
         public string Topic { get; set; }
 
-        public List<Tutor> Tutors { get; set; }
+        public virtual List<Tutor> Tutors { get; set; }
     }
 }
