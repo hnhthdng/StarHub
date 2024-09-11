@@ -1,0 +1,6 @@
+@StarHubAPI_HostAddress = http://localhost:5064
+
+GET {{StarHubAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
