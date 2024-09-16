@@ -17,6 +17,7 @@ namespace DataAccess
         public DbSet<MainSubject> MainSubjects { get; set; }
         public DbSet<FormOfWork> FormOfWorks { get; set; }
         public DbSet<TeachingTopic> TeachingTopics { get; set; }
+        public DbSet<Post> Posts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
