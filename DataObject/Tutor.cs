@@ -51,6 +51,16 @@ namespace DataObject
 
         [MaxLength(200)]
         public string TeachingArea { get; set; }
+
+        [Phone]
+        public string PhoneNumber { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        public string avatarURL { get; set; }
+
     }
 
 }

@@ -70,7 +70,10 @@ namespace DataAccess
                     Experience = "5 years of teaching experience",
                     Achievement = "Published 3 research papers in reputed journals",
                     CurrentStatus = "Currently a professor at XYZ University",
-                    TeachingArea = "New York City"
+                    TeachingArea = "New York City",
+                    PhoneNumber = "123456789",
+                    Email = "1@gmail.com",
+                    avatarURL = "https://randomuser.me/api/port"
                 },
                 new Tutor
                 {
@@ -85,7 +88,10 @@ namespace DataAccess
                     Experience = "3 years of teaching experience",
                     Achievement = "Top teacher award in 2023",
                     CurrentStatus = "Currently an online tutor",
-                    TeachingArea = "Los Angeles"
+                    TeachingArea = "Los Angeles",
+                    PhoneNumber = "987654321",
+                    Email = "2@gmail.com",
+                    avatarURL = "https://randomuser.me/api/port"
                 }
             );
         }

@@ -32,5 +32,10 @@ namespace DataObject.DTO.Tutor
         public string CurrentStatus { get; set; }
         [MaxLength(200)]
         public string TeachingArea { get; set; }
+
+        public string PhoneNumber { get; set; }
+        public string Email { get; set; }
+        //public string avatarURL { get; set; }
+
     }
 }

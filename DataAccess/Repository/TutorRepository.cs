@@ -36,7 +36,12 @@ namespace DataAccess.Repository
                 objFromDb.TeachingTopics = tutor.TeachingTopics;
                 objFromDb.CurrentStatus = tutor.CurrentStatus;
                 objFromDb.TeachingArea = tutor.TeachingArea;
-
+                objFromDb.PhoneNumber = tutor.PhoneNumber;
+                objFromDb.Email = tutor.Email;
+                if (tutor.avatarURL != null)
+                {
+                    objFromDb.avatarURL = tutor.avatarURL;
+                }
             }
         }
     }
