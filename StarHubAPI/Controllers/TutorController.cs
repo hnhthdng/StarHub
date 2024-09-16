@@ -308,5 +308,15 @@ namespace StarHubAPI.Controllers
 
             return Ok(tutor); // Return the updated Tutor object
         }
+
+        [HttpGet("FilterTutorByMainSubject/{mainSubject}")]
+        public IActionResult FilterTutorByMainSubject(string mainSubject)
+        {
+            var mainSubjectToLower = mainSubject.ToLower();
+            var tutors = _unitOfWork.Tutor.GetAll(includeProperty: "MainSubjects,FormOfWorks,TeachingTopics");
+            var tutorsByMainSubject = tutors.Where(t => t.MainSubjects.Any(ms => ms.Name.ToLower().Contains(mainSubjectToLower)));
+            return Ok(tutorsByMainSubject);
+
+        }
     }
 }
