@@ -13,13 +13,15 @@ namespace StarHubAPI.Controllers
     public class TutorController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IMapper _mapper;
 
 
-        public TutorController(IUnitOfWork unitOfWork, IMapper mapper)
+        public TutorController(IUnitOfWork unitOfWork, IMapper mapper, IWebHostEnvironment hostingEnvironment)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         [HttpGet]
@@ -41,21 +43,65 @@ namespace StarHubAPI.Controllers
         }
 
         [HttpPost("AddBasicInfo")]
-        public IActionResult Post([FromBody] TutorBasicInfoDTO tutorDTO)
+        public IActionResult Post([FromForm] TutorBasicInfoDTO tutorDTO, IFormFile file)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file was uploaded.");
+            }
+
+            // Ensure the upload directory exists
+            string webRootPath = _hostingEnvironment.WebRootPath;
+            string uploadsFolder = Path.Combine(webRootPath, "images", "avatarTutor");
+
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            // Generate a unique file name
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string filePath = Path.Combine(uploadsFolder, fileName);
+
+            // Save the file to the server
+            try
+            {
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    file.CopyTo(fileStream);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error uploading file: {ex.Message}");
+            }
+
+
+            // Map the DTO to the entity
             Tutor tutor = _mapper.Map<Tutor>(tutorDTO);
-            _unitOfWork.Tutor.Add(tutor);
-            _unitOfWork.Save();
+            tutor.avatarURL = $"/images/avatarTutor/{fileName}";
+
+            // Save the tutor to the database
+            try
+            {
+                _unitOfWork.Tutor.Add(tutor);
+                _unitOfWork.Save();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Failed to save tutor: {ex.Message}");
+            }
+
             return CreatedAtAction("Get", new { id = tutor.Id }, tutor);
         }
 
 
         [HttpPut("UpdateBasicInfo/{id}")]
-        public IActionResult Update(int id, [FromBody] TutorBasicInfoDTO tutorDTO)
+        public IActionResult Update(int id, [FromForm] TutorBasicInfoDTO tutorDTO, IFormFile file)
         {
             if (!ModelState.IsValid)
             {
@@ -69,16 +115,65 @@ namespace StarHubAPI.Controllers
                 return NotFound($"Tutor with Id {id} not found.");
             }
 
-            // Map updated values from DTO to the existing entity
+            // Handle optional image file upload
+            if (file != null && file.Length > 0)
+            {
+                // Ensure the upload directory exists
+                string webRootPath = _hostingEnvironment.WebRootPath;
+                string uploadsFolder = Path.Combine(webRootPath, "images", "avatarTutor");
+
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                // Generate a unique file name
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                string filePath = Path.Combine(uploadsFolder, fileName);
+
+                // Save the new file to the server
+                try
+                {
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+
+                    // Delete the old avatar file if it exists
+                    if (!string.IsNullOrEmpty(existingTutor.avatarURL))
+                    {
+                        string oldFilePath = Path.Combine(webRootPath, existingTutor.avatarURL.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                        if (System.IO.File.Exists(oldFilePath))
+                        {
+                            System.IO.File.Delete(oldFilePath);
+                        }
+                    }
+
+                    // Update the avatar URL with the new file
+                    existingTutor.avatarURL = $"/images/avatarTutor/{fileName}";
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, $"Error uploading file: {ex.Message}");
+                }
+            }
+
+            // Map updated values from DTO to the existing entity (excluding avatarURL if not changed)
             _mapper.Map(tutorDTO, existingTutor);
 
             // Update the entity in the repository
-            _unitOfWork.Tutor.Update(existingTutor);
-            _unitOfWork.Save();
+            try
+            {
+                _unitOfWork.Tutor.Update(existingTutor);
+                _unitOfWork.Save();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Failed to update tutor: {ex.Message}");
+            }
 
             return CreatedAtAction("Get", new { id = id }, existingTutor);
         }
-
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
@@ -212,6 +307,16 @@ namespace StarHubAPI.Controllers
             _unitOfWork.Save();
 
             return Ok(tutor); // Return the updated Tutor object
+        }
+
+        [HttpGet("FilterTutorByMainSubject/{mainSubject}")]
+        public IActionResult FilterTutorByMainSubject(string mainSubject)
+        {
+            var mainSubjectToLower = mainSubject.ToLower();
+            var tutors = _unitOfWork.Tutor.GetAll(includeProperty: "MainSubjects,FormOfWorks,TeachingTopics");
+            var tutorsByMainSubject = tutors.Where(t => t.MainSubjects.Any(ms => ms.Name.ToLower().Contains(mainSubjectToLower)));
+            return Ok(tutorsByMainSubject);
+
         }
     }
 }

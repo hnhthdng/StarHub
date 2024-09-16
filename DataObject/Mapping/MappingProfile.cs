@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DataObject.DTO.FormOfWork;
 using DataObject.DTO.MainSubject;
+using DataObject.DTO.Post;
 using DataObject.DTO.TeachingTopic;
 using DataObject.DTO.Tutor;
 using System;
@@ -26,6 +27,9 @@ namespace DataObject.Mapping
 
             //Define the mapping between TeachingTopic and TeachingTopicDTO   
             CreateMap<TeachingTopic, TeachingTopicDTO>().ReverseMap();
+
+            //Define the mapping between Post and PostDTO
+            CreateMap<Post, PostDTO>().ReverseMap();
         }
     }
 }

@@ -17,11 +17,13 @@ namespace DataAccess.Repository
             MainSubject = new MainSubjectRepository(_db);
             FormOfWork = new FormOfWorkRepository(_db);
             TeachingTopic = new TeachingTopicRepository(_db);
+            Post = new PostRepository(_db);
         }
         public ITutorRepository Tutor { get; private set; }
         public IMainSubjectRepository MainSubject { get; private set; }
         public IFormOfWorkRepository FormOfWork { get; private set; }
         public ITeachingTopicRepository TeachingTopic { get; private set; }
+        public IPostRepository Post { get; private set; }
 
         public void Dispose()
         {

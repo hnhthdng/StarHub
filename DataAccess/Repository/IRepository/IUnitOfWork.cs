@@ -12,6 +12,7 @@ namespace DataAccess.Repository.IRepository
         IMainSubjectRepository MainSubject { get; }
         IFormOfWorkRepository FormOfWork { get; }
         ITeachingTopicRepository TeachingTopic { get; }
+        IPostRepository Post { get; }
         void Save();
     }
 }
