@@ -101,7 +101,7 @@ namespace StarHubAPI.Controllers
 
 
         [HttpPut("UpdateBasicInfo/{id}")]
-        public IActionResult Update(int id, [FromForm] TutorBasicInfoDTO tutorDTO, IFormFile file)
+        public IActionResult Update(int id, [FromBody] TutorBasicInfoDTO tutorDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -113,6 +113,34 @@ namespace StarHubAPI.Controllers
             if (existingTutor == null)
             {
                 return NotFound($"Tutor with Id {id} not found.");
+            }
+
+            // Map updated values from DTO to the existing entity (excluding avatarURL if not changed)
+            _mapper.Map(tutorDTO, existingTutor);
+
+            // Update the entity in the repository
+            try
+            {
+                _unitOfWork.Tutor.Update(existingTutor);
+                _unitOfWork.Save();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Failed to update tutor: {ex.Message}");
+            }
+
+            return CreatedAtAction("Get", new { id = id }, existingTutor);
+        }
+
+
+        [HttpPost("AddAvatarForTutor/{tutorId}")]
+        public IActionResult AddAvatarForTutor(int tutorId, IFormFile file)
+        {
+            // Retrieve the existing entity
+            var existingTutor = _unitOfWork.Tutor.GetFirstOrDefault(t => t.Id == tutorId);
+            if (existingTutor == null)
+            {
+                return NotFound($"Tutor with Id {tutorId} not found.");
             }
 
             // Handle optional image file upload
@@ -151,28 +179,15 @@ namespace StarHubAPI.Controllers
 
                     // Update the avatar URL with the new file
                     existingTutor.avatarURL = $"/images/avatarTutor/{fileName}";
+                    _unitOfWork.Tutor.Update(existingTutor);
+                    _unitOfWork.Save();
                 }
                 catch (Exception ex)
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError, $"Error uploading file: {ex.Message}");
                 }
             }
-
-            // Map updated values from DTO to the existing entity (excluding avatarURL if not changed)
-            _mapper.Map(tutorDTO, existingTutor);
-
-            // Update the entity in the repository
-            try
-            {
-                _unitOfWork.Tutor.Update(existingTutor);
-                _unitOfWork.Save();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Failed to update tutor: {ex.Message}");
-            }
-
-            return CreatedAtAction("Get", new { id = id }, existingTutor);
+            return Ok(existingTutor);
         }
 
         [HttpDelete("{id}")]
